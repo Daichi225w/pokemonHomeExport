@@ -5,6 +5,7 @@ const stringifySync = require('csv-stringify/sync');
 const pokemonList  = JSON.parse(fs.readFileSync("MasterData/PokemonList.json"));
 const wazaList     = JSON.parse(fs.readFileSync("MasterData/WazaList.json"));
 const motimonoList = JSON.parse(fs.readFileSync("MasterData/MotimonoList.json"));
+const seikakuList  = JSON.parse(fs.readFileSync("MasterData/SeikakuList.json"));
 const tokuseiList  = JSON.parse(fs.readFileSync("MasterData/TokuseiList.json"));
 const terastalList = JSON.parse(fs.readFileSync("MasterData/TerastalList.json"));
 
@@ -42,7 +43,7 @@ request.post({
 function getSeasonData(seasonInfo) {
 
     let path = outputPath;
-    if (Date.now() >=  new Date(seasonInfo.end)) {
+    if (Date.now() >= new Date(seasonInfo.end)) {
         path = `${path}/${seasonInfo.name}`;
         if (fs.existsSync(path)) {
             return;
@@ -53,6 +54,7 @@ function getSeasonData(seasonInfo) {
 
     let wazaDataList     = [];
     let motimonoDataList = [];
+    let seikakuDataList  = [];
     let tokuseiDataList  = [];
     let terastalDataList = [];
 
@@ -98,6 +100,18 @@ function getSeasonData(seasonInfo) {
                             motimonoData.rate        = motimono.val;
                             motimonoDataList.push(motimonoData);
                         }
+                        if (temoti.seikaku) {
+                            for(let seikaku of temoti.seikaku) {
+                                let seikakuData = {};
+                                seikakuData.pokeNum     = num;
+                                seikakuData.pokeFolmNum = folm;
+                                seikakuData.name        = pokeName;
+                                seikakuData.seikakuId   = seikaku.id;
+                                seikakuData.seikaku     = seikakuList[seikaku.id];
+                                seikakuData.rate        = seikaku.val;
+                                seikakuDataList.push(seikakuData);
+                            }
+                        }
                         for(let tokusei of temoti.tokusei) {
                             let tokuseiData = {};
                             tokuseiData.pokeNum     = num;
@@ -128,6 +142,7 @@ function getSeasonData(seasonInfo) {
     Promise.all([getDetail(1), getDetail(2), getDetail(3),getDetail(4),getDetail(5),getDetail(6)]).then(function() {
         saveFile(`${path}/WazaRanking.csv`    , wazaDataList.sort(    (a, b) => a.pokeNum - b.pokeNum));
         saveFile(`${path}/MotimonoRanking.csv`, motimonoDataList.sort((a, b) => a.pokeNum - b.pokeNum));
+        saveFile(`${path}/SeikakuRanking.csv` , seikakuDataList.sort( (a, b) => a.pokeNum - b.pokeNum));
         saveFile(`${path}/TokuseiRanking.csv` , tokuseiDataList.sort( (a, b) => a.pokeNum - b.pokeNum));
         saveFile(`${path}/TerastalRanking.csv`, terastalDataList.sort((a, b) => a.pokeNum - b.pokeNum));
     });
@@ -168,4 +183,3 @@ function getSeasonData(seasonInfo) {
 function saveFile(path,dataList) {
     fs.writeFileSync(path, '\ufeff' + stringifySync.stringify(dataList, {header: true, quoted_string: true}));
 }
-

@@ -12,6 +12,7 @@ const terastalList = JSON.parse(fs.readFileSync("MasterData/TerastalList.json"))
 const outputPath = 'Output';
 
 const url = 'https://api.battle.pokemon-home.com/tt/cbd/competition/rankmatch/list';
+const userAgent = "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Mobile Safari/537.36";
 
 request.post({
     uri: url,
@@ -21,7 +22,7 @@ request.post({
         "countrycode": "304",
         "authorization":"Bearer",
         "angcode": "1",
-        "user-agent": "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Mobile Safari/537.36"
+        "user-agent": userAgent
     },
     json: {
         "soft":"Sc"
@@ -66,7 +67,7 @@ function getSeasonData(seasonInfo) {
                 uri: temotiUrl,
                 headers: {
                     "accept": "application/json",
-                    "user-agent": "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Mobile Safari/537.36"
+                    "user-agent": userAgent
                 }
             }, (err, res, temotiData) => {
                 let target = JSON.parse(temotiData);
@@ -154,7 +155,7 @@ function getSeasonData(seasonInfo) {
         uri: usageUrl,
         headers: {
             "accept": "application/json",
-            "user-agent": "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Mobile Safari/537.36"
+            "user-agent": userAgent
         }
     }, (err, res, usageData) => {
 
@@ -181,5 +182,7 @@ function getSeasonData(seasonInfo) {
 }
 
 function saveFile(path,dataList) {
-    fs.writeFileSync(path, '\ufeff' + stringifySync.stringify(dataList, {header: true, quoted_string: true}));
+    if (dataList.length) {
+        fs.writeFileSync(path, '\ufeff' + stringifySync.stringify(dataList, {header: true, quoted_string: true}));
+    }
 }
